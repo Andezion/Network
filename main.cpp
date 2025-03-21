@@ -308,6 +308,8 @@ void Program4()
 int main()
 {
     sf::RenderWindow window(sf::VideoMode(1000, 800), "Lab1");
+    sf::Font text;
+    text.loadFromFile("text.ttf");
 
     while(window.isOpen())
     {
@@ -322,9 +324,14 @@ int main()
             }
         }
 
-        window.clear(sf::Color::White);
+        sf::Vector2i mouse_pos = sf::Mouse::getPosition(window);
 
-        draw_button1(window);
+        window.clear(sf::Color(76, 112, 176, 255));
+
+        draw_button1(window, text, mouse_pos);
+        draw_button2(window, text, mouse_pos);
+        draw_button3(window, text, mouse_pos);
+        draw_button4(window, text, mouse_pos);
 
         window.display();
     }

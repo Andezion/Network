@@ -10,6 +10,10 @@ include_directories(${SFML_INCLUDE_DIR})
 link_directories(${SFML_LIB_DIR})
 
 add_executable(Lab1_PS main.cpp
-        button_handlers.h)
+        button_handlers.h
+        zadanie1.h
+        zadanie2.h
+        zadanie3.h
+        zadanie4.h)
 
 target_link_libraries(Lab1_PS sfml-graphics sfml-window sfml-system)

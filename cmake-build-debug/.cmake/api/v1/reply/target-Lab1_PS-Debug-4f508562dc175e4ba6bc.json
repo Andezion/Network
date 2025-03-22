@@ -42,7 +42,7 @@
 			{
 				"command" : 2,
 				"file" : 0,
-				"line" : 15,
+				"line" : 19,
 				"parent" : 0
 			},
 			{
@@ -144,7 +144,11 @@
 			"name" : "Header Files",
 			"sourceIndexes" : 
 			[
-				1
+				1,
+				2,
+				3,
+				4,
+				5
 			]
 		}
 	],
@@ -159,6 +163,26 @@
 		{
 			"backtrace" : 1,
 			"path" : "button_handlers.h",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"path" : "zadanie1.h",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"path" : "zadanie2.h",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"path" : "zadanie3.h",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"path" : "zadanie4.h",
 			"sourceGroupIndex" : 1
 		}
 	],

@@ -11,6 +11,11 @@
 #include <SFML/Graphics.hpp>
 #include "button_handlers.h"
 
+#include "zadanie1.h"
+#include "zadanie2.h"
+#include "zadanie3.h"
+#include "zadanie4.h"
+
 DWORD WINAPI Thread(LPVOID lpParameter)
 {
     std::cout << "Hello World!\n" << std::endl;
@@ -305,6 +310,8 @@ void Program4()
     std::cout << "Exiting program.\n";
 }
 
+int what_to_show = 0;
+
 int main()
 {
     sf::RenderWindow window(sf::VideoMode(1000, 800), "Lab1");
@@ -328,10 +335,22 @@ int main()
 
         window.clear(sf::Color(76, 112, 176, 255));
 
-        draw_button1(window, text, mouse_pos);
-        draw_button2(window, text, mouse_pos);
-        draw_button3(window, text, mouse_pos);
-        draw_button4(window, text, mouse_pos);
+        if(sf::Mouse::isButtonPressed(sf::Mouse::Left) && what_to_show == 0)
+        {
+            what_to_show = button_handler(window, text, mouse_pos);
+        }
+
+        switch (what_to_show)
+        {
+            case 1: zadanie1(window, text, what_to_show); break;
+            case 2: zadanie2(window, text, what_to_show); break;
+            case 3: zadanie3(window, text, what_to_show); break;
+            case 4: zadanie4(window, text, what_to_show); break;
+            default: button_handler(window, text, mouse_pos); break;
+        }
+
+
+
 
         window.display();
     }

@@ -1,6 +1,53 @@
 #ifndef ZADANIE1_H
 #define ZADANIE1_H
 
+
+inline std::string threadOutput = "Waiting for thread...";
+inline std::mutex textMutex;
+
+inline bool threadRunning = false;
+
+inline void ThreadFunction()
+{
+    DWORD threadId = GetCurrentThreadId();
+
+    Sleep(1000);
+
+    {
+        std::lock_guard<std::mutex> lock(textMutex);
+        threadOutput = "Hello World!\n"
+                       "Thread ID: " + std::to_string(threadId);
+    }
+
+    Sleep(2000);
+
+    {
+        std::lock_guard<std::mutex> lock(textMutex);
+        threadOutput += "\nThread finished!";
+    }
+
+    Sleep(1000);
+
+    {
+        std::lock_guard<std::mutex> lock(textMutex);
+        threadOutput = "Waiting for thread...";
+    }
+
+    Sleep(1000);
+
+    threadRunning = false;
+}
+
+inline void Program1()
+{
+    if (!threadRunning)
+    {
+        threadRunning = true;
+        std::thread worker(ThreadFunction);
+        worker.detach();
+    }
+}
+
 inline void zadanie1(sf::RenderWindow &window, const sf::Font& text, int &what_to_show)
 {
     sf::Text display;
@@ -28,11 +75,33 @@ inline void zadanie1(sf::RenderWindow &window, const sf::Font& text, int &what_t
         what_to_show = 0;
     }
 
+    sf::RectangleShape main_activity;
+    main_activity.setFillColor(sf::Color(184, 191, 204, 255));
+    main_activity.setOutlineColor(sf::Color::Black);
+    main_activity.setOutlineThickness(2);
+    main_activity.setPosition(sf::Vector2f(100, 300));
+    main_activity.setSize(sf::Vector2f(800, 400));
+
+    sf::Text outputText;
+    outputText.setFont(text);
+    outputText.setCharacterSize(50);
+    outputText.setFillColor(sf::Color::Black);
+    outputText.setPosition(sf::Vector2f(170, 380));
+
+    {
+        std::lock_guard<std::mutex> lock(textMutex);
+        outputText.setString(threadOutput);
+    }
+
+    Program1();
+
     custom_hover(rect, mouse_pos);
 
+    window.draw(main_activity);
     window.draw(rect);
     window.draw(back);
     window.draw(display);
+    window.draw(outputText);
 }
 
 #endif //ZADANIE1_H

@@ -16,38 +16,6 @@
 #include "zadanie3.h"
 #include "zadanie4.h"
 
-DWORD WINAPI Thread(LPVOID lpParameter)
-{
-    std::cout << "Hello World!\n" << std::endl;
-
-    Sleep(2000);
-
-    return 0;
-}
-void Program1()
-{
-    DWORD ThreadId;
-
-    HANDLE hThread = CreateThread(
-        nullptr,
-        0,
-        Thread,
-        nullptr,
-        0,
-        &ThreadId);
-
-    if(hThread == nullptr)
-    {
-        std::cerr << "Create Thread Failed" << std::endl;
-    }
-
-    WaitForSingleObject(hThread, INFINITE);
-
-    std::cout << "Thread ID: " << ThreadId << std::endl;
-
-    CloseHandle(hThread);
-}
-
 #define THREAD_COUNT 10
 
 HANDLE hThreads[THREAD_COUNT];
@@ -349,12 +317,8 @@ int main()
             default: button_handler(window, text, mouse_pos); break;
         }
 
-
-
-
         window.display();
     }
-
 
     return 0;
 }

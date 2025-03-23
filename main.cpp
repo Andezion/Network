@@ -215,6 +215,24 @@ void StartThreads()
         tasks[i] = std::async(std::launch::async, Thread4, i);
     }
 }
+
+extern void StartThread(int num)
+{
+    std::lock_guard<std::mutex> lock(taskMutex);
+
+    for (int i = 0; i < num; i++)
+    {
+        if (tasks.find(i) == tasks.end())
+        {
+            isRunning[i] = true;
+            tasks[i] = std::async(std::launch::async, Thread4, i);
+            {
+                std::lock_guard<std::mutex> coutLock(coutMutex);
+                std::cout << "Thread " << i << " started." << std::endl;
+            }
+        }
+    }
+}
 void StopThread(int threadNum)
 {
     std::lock_guard<std::mutex> lock(taskMutex);

@@ -3,6 +3,18 @@
 
 #include "button_handlers.h"
 
+inline int exit_program = 0;
+
+extern HANDLE hThreads[10];
+extern volatile bool isRunning[10];
+
+extern void StartThread(int num);
+
+extern void StopThread(int threadNum);
+extern void StopAllThreads();
+
+inline std::vector<std::string> logs;
+
 inline void zadanie2(sf::RenderWindow &window, const sf::Font& text, int &what_to_show)
 {
     sf::Text display;
@@ -30,11 +42,107 @@ inline void zadanie2(sf::RenderWindow &window, const sf::Font& text, int &what_t
         what_to_show = 0;
     }
 
+    std::vector<sf::RectangleShape> buttons;
+    std::vector<sf::Text> buttonLabels;
+
+    for (int i = 0; i < 4; i++)
+    {
+        sf::RectangleShape startButton(sf::Vector2f(120, 50));
+        startButton.setPosition(sf::Vector2f(100, 100 + i * 60));
+        startButton.setFillColor(sf::Color(61, 166, 101, 255));
+        buttons.push_back(startButton);
+
+        sf::Text startLabel;
+        startLabel.setFont(text);
+        startLabel.setCharacterSize(25);
+        startLabel.setString("start " + std::to_string(i));
+        startLabel.setFillColor(sf::Color::White);
+        startLabel.setPosition(sf::Vector2f(105, 108 + i * 60));
+        buttonLabels.push_back(startLabel);
+
+        sf::RectangleShape stopButton(sf::Vector2f(120, 50));
+        stopButton.setPosition(sf::Vector2f(435, 100 + i * 60));
+        stopButton.setFillColor(sf::Color(166, 61, 61, 255));
+        buttons.push_back(stopButton);
+
+        sf::Text stopLabel;
+        stopLabel.setFont(text);
+        stopLabel.setCharacterSize(25);
+        stopLabel.setString("stop " + std::to_string(i));
+        stopLabel.setFillColor(sf::Color::White);
+        stopLabel.setPosition(sf::Vector2f(445, 108 + i * 60));
+        buttonLabels.push_back(stopLabel);
+    }
+
+
+    sf::RectangleShape button_exit_prog;
+    button_exit_prog.setPosition(sf::Vector2f(780, 150));
+    button_exit_prog.setSize(sf::Vector2f(120, 50));
+    button_exit_prog.setFillColor(sf::Color(61, 166, 101, 255));
+
+    sf::Text exit_prog;
+    exit_prog.setFont(text);
+    exit_prog.setCharacterSize(30);
+    exit_prog.setString("exit");
+    exit_prog.setFillColor(sf::Color::White);
+    exit_prog.setPosition(sf::Vector2f(805, 155));
+
+    sf::RectangleShape main_activity;
+    main_activity.setFillColor(sf::Color(184, 191, 204, 255));
+    main_activity.setOutlineColor(sf::Color::Black);
+    main_activity.setOutlineThickness(2);
+    main_activity.setPosition(sf::Vector2f(100, 350));
+    main_activity.setSize(sf::Vector2f(800, 400));
+
+
+
+    sf::Text outputText;
+    outputText.setFont(text);
+    outputText.setCharacterSize(10);
+    outputText.setFillColor(sf::Color::Black);
+    outputText.setPosition(sf::Vector2f(110, 310));
+
     custom_hover(rect, mouse_pos);
+
+    for (auto& button : buttons)
+    {
+        custom_hover(button, mouse_pos);
+    }
+
+    custom_hover(button_exit_prog, mouse_pos);
+
+    for (size_t i = 0; i < buttons.size(); i++)
+    {
+        if (buttons[i].getGlobalBounds().contains(static_cast<sf::Vector2f>(mouse_pos)) && sf::Mouse::isButtonPressed(sf::Mouse::Left))
+        {
+            if (i % 2 == 0)
+            {
+                StartThread(i / 2);
+            }
+            else
+            {
+                StopThread(i / 2);
+            }
+        }
+    }
+
+    if (button_exit_prog.getGlobalBounds().contains(static_cast<sf::Vector2f>(mouse_pos)) && sf::Mouse::isButtonPressed(sf::Mouse::Left))
+    {
+        StopAllThreads();
+    }
 
     window.draw(rect);
     window.draw(back);
     window.draw(display);
+
+    window.draw(button_exit_prog);
+    window.draw(exit_prog);
+
+    for (auto& button : buttons) window.draw(button);
+    for (auto& label : buttonLabels) window.draw(label);
+
+    window.draw(main_activity);
+    window.draw(outputText);
 }
 
 #endif //ZADANIE2_H

@@ -22,7 +22,7 @@ HANDLE hThreads[THREAD_COUNT];
 DWORD threadIds[THREAD_COUNT];
 
 volatile bool isRunning[THREAD_COUNT] = { false };
-volatile int letterIndex[THREAD_COUNT] = {};
+int letterIndex[THREAD_COUNT] = {};
 
 DWORD WINAPI Thread2(LPVOID lpParameter)
 {

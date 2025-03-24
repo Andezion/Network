@@ -3,128 +3,10 @@
 
 #include "button_handlers.h"
 
-inline std::mutex outputLogsMutex;
-
-#define thread_new_count 10
-inline HANDLE hThreads2[thread_new_count];
-inline DWORD thread_id2[thread_new_count];
-
-inline volatile bool isRunning2[thread_new_count] = { false };
-inline int letterIndex2[thread_new_count] = {};
-inline volatile bool shouldExit2[thread_new_count] = { false };
-
-inline std::vector<std::string> outputLogs;
-
-inline DWORD WINAPI Thread22(LPVOID lpParameter)
-{
-    int threadNum = static_cast<int>(reinterpret_cast<size_t>(lpParameter));
-    char letter = 'A' + letterIndex2[threadNum];
-
-    while (!shouldExit2[threadNum])  // Цикл, пока поток не должен завершиться
-    {
-        if (!isRunning2[threadNum])
-        {
-            Sleep(100);  // Чтобы не грузить процессор
-            continue;
-        }
-
-        {
-            // Блокируем доступ к outputLogs (потребуется мьютекс)
-            std::lock_guard<std::mutex> lock(outputLogsMutex);
-            std::stringstream ss;
-            ss << "Thread " << threadNum + 1 << ": " << letter;
-            outputLogs.push_back(ss.str());
-        }
-
-        letter++;
-        letterIndex2[threadNum]++;
-
-        if (letter > 'Z') break;  // Завершаем поток после 'Z'
-    }
-
-    return 0;
-}
-
-inline void InitThreads2()
-{
-    for (int i = 0; i < thread_new_count; i++)
-    {
-        hThreads2[i] = CreateThread(
-            nullptr,
-            0,
-            Thread22,
-            reinterpret_cast<LPVOID>(static_cast<size_t>(i)),
-            CREATE_SUSPENDED,
-            &thread_id2[i]);
-
-        if (hThreads2[i] == nullptr)
-        {
-            std::cerr << "Error creating thread: " << i + 1 << std::endl;
-        }
-    }
-}
-
-inline void StartThread2(const int threadNum)
-{
-    if (threadNum >= 0 && threadNum < thread_new_count)
-    {
-        if (hThreads2[threadNum] == nullptr)  // Если поток завершён, создаём новый
-        {
-            hThreads2[threadNum] = CreateThread(
-                nullptr, 0, Thread22,
-                reinterpret_cast<LPVOID>(static_cast<size_t>(threadNum)),
-                0, &thread_id2[threadNum]
-            );
-
-            if (hThreads2[threadNum] == nullptr)
-            {
-                std::cerr << "Error creating thread: " << threadNum + 1 << std::endl;
-                return;
-            }
-        }
-
-        isRunning2[threadNum] = true;
-        ResumeThread(hThreads2[threadNum]);
-
-        {
-            std::lock_guard<std::mutex> lock(outputLogsMutex);
-            outputLogs.push_back("Started thread " + std::to_string(threadNum + 1));
-        }
-    }
-}
-
-inline void StopThread2(const int threadNum)
-{
-    if (threadNum >= 0 && threadNum < thread_new_count)
-    {
-        isRunning2[threadNum] = false;
-        SuspendThread(hThreads2[threadNum]);
-        outputLogs.push_back("Stopped thread " + std::to_string(threadNum + 1));
-    }
-}
-
-void StopAllThreads2()
-{
-    for (int i = 0; i < thread_new_count; i++)
-    {
-        shouldExit2[i] = true;  // Устанавливаем флаг завершения потока
-        isRunning2[i] = false;  // Останавливаем выполнение внутри цикла
-
-        if (hThreads2[i] != nullptr)
-        {
-            WaitForSingleObject(hThreads2[i], INFINITE);  // Ждем завершения
-            CloseHandle(hThreads2[i]);  // Закрываем дескриптор потока
-            hThreads2[i] = nullptr;
-        }
-    }
-
-    outputLogs.push_back("All threads stopped.");
-}
+inline std::map<int, bool> active_threads;
 
 inline void zadanie2(sf::RenderWindow &window, const sf::Font& text, int &what_to_show)
 {
-    InitThreads2();
-
     sf::Text display;
     display.setFont(text);
     display.setCharacterSize(40);
@@ -147,7 +29,6 @@ inline void zadanie2(sf::RenderWindow &window, const sf::Font& text, int &what_t
     sf::Vector2i mouse_pos = sf::Mouse::getPosition(window);
     if(rect.getGlobalBounds().contains(static_cast<sf::Vector2f>(mouse_pos)) && sf::Mouse::isButtonPressed(sf::Mouse::Left))
     {
-        StopAllThreads2();
         what_to_show = 0;
     }
 
@@ -203,24 +84,52 @@ inline void zadanie2(sf::RenderWindow &window, const sf::Font& text, int &what_t
     main_activity.setPosition(sf::Vector2f(100, 350));
     main_activity.setSize(sf::Vector2f(800, 400));
 
+    static std::string our_output;
+
     for (int i = 0; i < buttons.size(); i++)
     {
         if (buttons[i].getGlobalBounds().contains(static_cast<sf::Vector2f>(mouse_pos)) && sf::Mouse::isButtonPressed(sf::Mouse::Left))
         {
             if (i % 2 == 0)
             {
-                StartThread2(i / 2);
+                int thread_id = i / 2;
+                active_threads[thread_id] = true;
+
+                our_output = "";
+                int counter = 0;
+                for (char letter = 'A'; letter <= 'Z'; letter++)
+                {
+                    if(counter == 4)
+                    {
+                        our_output += letter + std::to_string(thread_id) + "\n";
+                        counter = 0;
+                    }
+                    else
+                    {
+                        our_output += letter + std::to_string(thread_id) + " ";
+                    }
+                    counter++;
+                }
+                our_output += "\n";
             }
             else
             {
-                StopThread2(i / 2);
+                int thread_id = i / 2;
+                if(active_threads[thread_id] == false)
+                {
+                    our_output = "Thread " + std::to_string(thread_id) + " was not active!";
+                }
+                else
+                {
+                    our_output = "Thread " + std::to_string(thread_id) + " is stopped!";
+                }
             }
         }
     }
 
     if (button_exit_prog.getGlobalBounds().contains(static_cast<sf::Vector2f>(mouse_pos)) && sf::Mouse::isButtonPressed(sf::Mouse::Left))
     {
-        StopAllThreads2();
+        our_output = "All threads stopped!";
     }
 
     sf::Text outputText;
@@ -228,14 +137,7 @@ inline void zadanie2(sf::RenderWindow &window, const sf::Font& text, int &what_t
     outputText.setCharacterSize(20);
     outputText.setFillColor(sf::Color::Black);
     outputText.setPosition(sf::Vector2f(110, 410));
-
-    std::string outputString;
-    for (size_t i = (outputLogs.size() > 1 ? outputLogs.size() - 1 : 0); i < outputLogs.size(); i++)
-    {
-        outputString += outputLogs[i] + "\n";
-    }
-    outputText.setString(outputString);
-
+    outputText.setString(our_output);
     custom_hover(rect, mouse_pos);
 
     for (auto& button : buttons)

@@ -13,6 +13,9 @@
 #include "zad2_old.h"
 #include "zad2_full.h"
 
+#include "zad3_old.h"
+#include "zad3_new.h"
+
 
 int main()
 {
@@ -22,5 +25,8 @@ int main()
     //program2_full(); // - ok
     //program2_old(); // - ok
     //program2_new(); // - ok
+
+    program3_old();
+
     return 0;
 }

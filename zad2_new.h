@@ -2,27 +2,27 @@
 
 #define THREAD_COUNT 10
 
-inline std::vector<std::thread> threads;
-inline std::atomic<bool> running = true;
-inline std::atomic<bool> isRunning[THREAD_COUNT] = {};
-inline std::condition_variable condVars[THREAD_COUNT];
-inline std::mutex mtx[THREAD_COUNT];
+inline std::vector<std::thread> threads2_new;
+inline std::atomic<bool> running2_new = true;
+inline std::atomic<bool> isRunning2_new[THREAD_COUNT] = {};
+inline std::condition_variable condVars2_new[THREAD_COUNT];
+inline std::mutex mtx2_new[THREAD_COUNT];
 
-inline void threadFunction(int threadNum)
+inline void Threads_new(int threadNum)
 {
     char letter = 'A';
 
-    while (running)
+    while (running2_new)
     {
-        std::unique_lock lock(mtx[threadNum]);
-        condVars[threadNum].wait(lock, [threadNum]
+        std::unique_lock lock(mtx2_new[threadNum]);
+        condVars2_new[threadNum].wait(lock, [threadNum]
         {
-            return isRunning[threadNum] || !running;
+            return isRunning2_new[threadNum] || !running2_new;
         });
 
-        if (!running) break;
+        if (!running2_new) break;
 
-        while (isRunning[threadNum] && running)
+        while (isRunning2_new[threadNum] && running2_new)
         {
             std::cout << letter << threadNum + 1 << std::endl;
             if (letter == 'Z')
@@ -42,7 +42,7 @@ inline void program2_new()
 {
     for (int i = 0; i < THREAD_COUNT; i++)
     {
-        threads.emplace_back(threadFunction, i);
+        threads2_new.emplace_back(Threads_new, i);
     }
 
     std::string command;
@@ -57,8 +57,8 @@ inline void program2_new()
             int threadNum = std::stoi(command.substr(6)) - 1;
             if (threadNum >= 0 && threadNum < THREAD_COUNT)
             {
-                isRunning[threadNum] = true;
-                condVars[threadNum].notify_one();
+                isRunning2_new[threadNum] = true;
+                condVars2_new[threadNum].notify_one();
             }
             else
             {
@@ -70,7 +70,7 @@ inline void program2_new()
             int threadNum = std::stoi(command.substr(5)) - 1;
             if (threadNum >= 0 && threadNum < THREAD_COUNT)
             {
-                isRunning[threadNum] = false;
+                isRunning2_new[threadNum] = false;
             }
             else
             {
@@ -80,14 +80,14 @@ inline void program2_new()
         else if (command == "exit")
         {
             std::cout << "Closing program...\n";
-            running = false;
+            running2_new = false;
 
-            for (auto & condVar : condVars)
+            for (auto & condVar : condVars2_new)
             {
                 condVar.notify_one();
             }
 
-            for (auto& t : threads)
+            for (auto& t : threads2_new)
             {
                 if (t.joinable())
                 {

@@ -5,6 +5,8 @@
 #include <vector>
 #include <atomic>
 #include <condition_variable>
+#include <mutex>
+#include <chrono>
 
 #include "zad1_old.h"
 #include "zad1_new.h"
@@ -26,7 +28,7 @@ int main()
     //program2_old(); // - ok
     //program2_new(); // - ok
 
-    program3_old();
+    program3_new();
 
     return 0;
 }

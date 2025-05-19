@@ -7,6 +7,8 @@
 #include <condition_variable>
 #include <mutex>
 #include <chrono>
+#include <future>
+#include <map>
 
 #include "zad1_old.h"
 #include "zad1_new.h"
@@ -18,6 +20,7 @@
 #include "zad3_old.h"
 #include "zad3_new.h"
 
+#include "zad4_new.h"
 
 int main()
 {
@@ -28,7 +31,10 @@ int main()
     //program2_old(); // - ok
     //program2_new(); // - ok
 
-    program3_new();
+    //program3_old() // - ok
+    //program3_new(); // - ok
+
+    program4_new();
 
     return 0;
 }
